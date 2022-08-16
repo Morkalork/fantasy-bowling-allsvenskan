@@ -1,47 +1,43 @@
-import puppeteer from "puppeteer";
-import { evaluateMatchIds } from "./evaluate-match-ids";
-import { evaluatePlayerInfos } from "./evaluate-player-infos";
-import { GamePlayerInfo } from "./types";
+import path from "path";
+import express from "express";
+import { scraper } from "./scraper";
+import winston from "winston";
+import expressWinston from "express-winston";
 
-const URL =
-  "https://bits.swebowl.se/elitserien-herrar?showAllDivisionMatches=true";
+const app = express();
+const PORT = process.env.NODE_DOCKER_PORT || 8080;
 
-const getGameInfoUrl = (gameInfoId: string) =>
-  `https://bits.swebowl.se/match-detail?matchid=${gameInfoId}`;
+app.use(
+  expressWinston.logger({
+    transports: [new winston.transports.Console()],
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.json()
+    ),
+    meta: true,
+    msg: "HTTP {{req.method}} {{req.url}}",
+    expressFormat: true,
+    colorize: false,
+    ignoreRoute: function (req, res) {
+      return false;
+    },
+  })
+);
 
-const scraper = async () => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.goto(URL);
-  await page.waitForSelector(".k-grid-content table tbody tr");
-  page.on("console", (message) => {
-    if (message.text().startsWith("JQMIGRATE") || message.type() !== "log") {
-      return;
-    }
-    console.log(message.text());
+app.get("/", (req, res) => {
+  console.log("Received request for /");
+  res.sendFile(path.join(__dirname + "/../index.html"));
+});
+
+app.get("/scrape", (req, res) => {
+  res.send("Scraping...");
+  scraper().then(() => {
+    res.send("Done!");
   });
+});
 
-  const matchIds = await page.evaluate(evaluateMatchIds);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("App 2 is now running at http://localhost:%d", PORT);
+});
 
-  const playerInfos: GamePlayerInfo[] = [];
-  for (let i = 0; i < matchIds.length; i++) {
-    const matchId = matchIds[i];
-    const gameInfoUrl = getGameInfoUrl(matchId);
-    await page.goto(gameInfoUrl);
-    await page.waitForSelector(
-      ".matchdetail-player-scores table tr:not(.Grid_Header)"
-    );
-
-    const newPlayerInfos = await page.evaluate(evaluatePlayerInfos);
-    playerInfos.push(...newPlayerInfos);
-    console.log(
-      `evaluatePlayerInfos: ${Math.floor((i / matchIds.length) * 100)}%`
-    );
-  }
-
-  console.log("Done...");
-
-  browser.close();
-};
-
-scraper();
+// scraper();
