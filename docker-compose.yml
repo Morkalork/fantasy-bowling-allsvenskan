@@ -5,14 +5,18 @@ services:
     restart: unless-stopped
     env_file: ./.env
     environment:
+      - MONGO_INITDB_DATABASE=$MONGODB_DATABASE
       - MONGO_INITDB_ROOT_USERNAME=$MONGODB_USER
       - MONGO_INITDB_ROOT_PASSWORD=$MONGODB_PASSWORD
     ports:
       - $MONGODB_LOCAL_PORT:$MONGODB_DOCKER_PORT
     volumes:
-      - db:/data/db
+      - ./mongo:/data/db
+      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/
   app:
     depends_on:
+      - mongodb
+    links:
       - mongodb
     build: .
     restart: unless-stopped

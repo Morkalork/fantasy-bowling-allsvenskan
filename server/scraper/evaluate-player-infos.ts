@@ -1,4 +1,4 @@
-import { GamePlayerInfo } from "./types";
+import { MatchInfo, PlayerInfo } from "./types";
 
 const getScore = (row: Element, round: number): number => {
   const value = row.querySelector(`td:nth-child(${round + 1})`).textContent;
@@ -14,9 +14,9 @@ export const evaluatePlayerInfos = () => {
     ".matchdetail-player-scores table tr:not(.Grid_Header)"
   );
 
-  const playerInfos: GamePlayerInfo[] = [];
-  console.log("Evaluate player info!");
-  rows.forEach((row, key) => {
+  // Get player data
+  const playerInfos: PlayerInfo[] = [];
+  rows.forEach((row) => {
     playerInfos.push({
       name: row.querySelector("td:nth-child(1)").textContent,
       seriesScore: [
@@ -34,5 +34,30 @@ export const evaluatePlayerInfos = () => {
     });
   });
 
-  return Promise.resolve(playerInfos);
+  // Get match info
+  const matchDataRow = document.querySelector(".match-data .row");
+  const matchInfoScore = document
+    .querySelector(".matchinfo-score")
+    .textContent.split("-");
+  const matchInfo: MatchInfo = {
+    matchId: parseInt(
+      matchDataRow
+        .querySelector("div:nth-child(1)")
+        .textContent.split(": ")
+        .pop()
+    ),
+    round: parseInt(
+      matchDataRow
+        .querySelector("div:nth-child(3)")
+        .textContent.split(" ")
+        .pop()
+    ),
+    date: document.querySelector(".game-header-date").textContent,
+    home: document.querySelector(".home-team .team-name").textContent,
+    homeScore: parseInt(matchInfoScore[0]),
+    away: document.querySelector(".away-team .team-name").textContent,
+    awayScore: parseInt(matchInfoScore[1]),
+  };
+
+  return Promise.resolve({ playerInfos, matchInfo });
 };
