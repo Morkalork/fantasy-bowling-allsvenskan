@@ -1,14 +1,5 @@
 import { MatchInfo, PlayerInfo } from "./types";
 
-const getScore = (row: Element, round: number): number => {
-  const value = row.querySelector(`td:nth-child(${round + 1})`).textContent;
-  if (!value) {
-    return 0;
-  }
-
-  return parseInt(value, 10);
-};
-
 export const evaluatePlayerInfos = () => {
   const rows = document.querySelectorAll(
     ".matchdetail-player-scores table tr:not(.Grid_Header)"
@@ -17,8 +8,22 @@ export const evaluatePlayerInfos = () => {
   // Get player data
   const playerInfos: PlayerInfo[] = [];
   rows.forEach((row) => {
+    // Name is stored as "Magnus Ferm (M123456)", so we split it and get the first part as name and the last part as license number
+    const playerNameSegments = row
+      .querySelector("td:nth-child(1)")
+      .textContent.split("(");
+
+    // Turn "(M123456)" into "M123456"
+    const licenseNumber = playerNameSegments
+      .pop() // The last part of ["Magnus", "Ferm", "(M123456)"]
+      .slice(0, -2) // Remove the brackets
+      .replace(/ /g, "");
+
+    const playerName = playerNameSegments.pop();
+
     playerInfos.push({
-      name: row.querySelector("td:nth-child(1)").textContent,
+      name: playerName,
+      licenseNumber: licenseNumber,
       seriesScore: [
         parseInt(row.querySelector("td:nth-child(2)").textContent),
         parseInt(row.querySelector("td:nth-child(3)").textContent),

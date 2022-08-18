@@ -6,7 +6,7 @@ import { evaluatePlayerInfos } from "./evaluate-player-infos";
 import { PlayerInfo, MatchInfo } from "./types";
 
 const URL =
-  "https://bits.swebowl.se/elitserien-herrar?showAllDivisionMatches=true";
+  "https://bits.swebowl.se/seriespel?seasonId=2021&divisionId=4&showTeamDivisionTable=true&showAllDivisionMatches=true";
 
 const getGameInfoUrl = (gameInfoId: number) =>
   `https://bits.swebowl.se/match-detail?matchid=${gameInfoId}`;
@@ -26,13 +26,16 @@ export const scraper = async () => {
     ],
   });
   const page = await browser.newPage();
-  await page.setRequestInterception(true);
 
+  /**
+    * USE THIS DURING DEVELOPMENT TO INTERCEPT REQUESTS
+  await page.setRequestInterception(true);
   page.on("request", (request) => {
     if (
       request.resourceType() === "xhr" &&
       request.url().startsWith("https://api.swebowl.se/api/v1/Match")
     ) {
+      // TODO: Fix/remove this once the rest is fixed
       const newUrl = request.url().replace("seasonId=2022", "seasonId=2021");
       request.continue({
         url: newUrl,
@@ -41,6 +44,8 @@ export const scraper = async () => {
       request.continue();
     }
   });
+   */
+
   page.on("console", (message) => {
     if (message.text().startsWith("JQMIGRATE") || message.type() !== "log") {
       return;
@@ -57,7 +62,7 @@ export const scraper = async () => {
   const matchIds = (await page.evaluate(evaluateMatchIds)).filter(
     (matchId) => !existingIds.includes(matchId)
   );
-  console.log({ matchIds, existingIds });
+  console.log({ existingIds, matchIds });
 
   const playerInfos: PlayerInfo[] = [];
   const matchInfos: MatchInfo[] = [];
@@ -75,7 +80,9 @@ export const scraper = async () => {
     playerInfos.push(...newPlayerInfos);
     matchInfos.push(matchInfo);
     console.log(
-      `evaluatePlayerInfos: ${Math.floor((i / matchIds.length) * 100)}%`
+      `evaluatePlayerInfos: (${matchId}) ${Math.floor(
+        (i / matchIds.length) * 100
+      )}%`
     );
   }
 

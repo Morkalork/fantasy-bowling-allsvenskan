@@ -1,5 +1,6 @@
 export type PlayerInfo = {
   name: string;
+  licenseNumber: string;
   seriesScore: number[];
   total: number;
   numberOfSeries: number;

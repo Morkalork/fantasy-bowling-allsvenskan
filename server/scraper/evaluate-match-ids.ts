@@ -4,11 +4,11 @@ export const evaluateMatchIds = (): Promise<number[]> => {
   rows.forEach((row, key) => {
     if (row.getAttribute("data-uid")) {
       const hasContent = !!row.querySelector("td:nth-child(4) span")
-        .textContent;
+        ?.textContent;
       if (hasContent) {
         const gameInfoId = row.querySelector(
           "td:nth-child(9) span"
-        ).textContent;
+        )?.textContent;
         if (gameInfoId) {
           matchIds.add(parseInt(gameInfoId));
         }

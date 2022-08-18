@@ -44,7 +44,7 @@ app.listen(PORT, "0.0.0.0", async () => {
     pass: process.env.MONGODB_PASSWORD,
     authSource: "admin",
   });
-  console.log("App 3 is now running at http://localhost:%d", PORT);
+  console.log("App is now running at http://localhost:%d", PORT);
 });
 
-// scraper();
+scraper();
