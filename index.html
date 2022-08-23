@@ -1,31 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Ranking</title>
 </head>
-<body>
-<h2>Bits ranking</h2>
-<div id="output"></div>
-<script type="text/javascript">
-    const createRow = (position, name, points, strength, average) => `<tr><td>${position}</td><td>${name}</td><td>${points}</td><td>${strength}</td><td>${average}</td></tr>`;
 
-    fetch('./ranking.json').then((response) => response.json()).then((data) => {
-        console.log(data);
-        const output = document.getElementById('output');
-        Object.keys(data).forEach((header) => {
-            const rows = data[header];
-            const table = document.createElement('table');
-            const htmlRows = rows.map(({position, name, points, strength, average}) => {
-                return createRow(position, name, position, strength, average);
+<body>
+    <h2>Bits ranking</h2>
+    <div id="output"></div>
+    <script type="text/javascript">
+        const createRow = (position, name, points, strength, average) => `<tr><td>${position}</td><td>${name}</td><td>${points}</td><td>${strength}</td><td>${average}</td></tr>`;
+
+        fetch('./ranking.json').then((response) => response.json()).then((data) => {
+            console.log(data);
+            const output = document.getElementById('output');
+            Object.keys(data).forEach((header) => {
+                const rows = data[header];
+                const table = document.createElement('table');
+                const htmlRows = rows.map(({ position, name, points, strength, average }) => {
+                    return createRow(position, name, position, strength, average);
+                });
+                table.innerHTML = htmlRows.join('');
+                const h2 = document.createElement('h2');
+                h2.innerText = header;
+                output.append(h2)
+                output.append(table);
             });
-            table.innerHTML = htmlRows.join('');
-            const h2 = document.createElement('h2');
-            h2.innerText = header;
-            output.append(h2)
-            output.append(table);
         });
-    });
-</script>
+    </script>
 </body>
+
 </html>

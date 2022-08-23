@@ -1,12 +1,15 @@
 import path from "path";
 import express from "express";
-import { scraper } from "./scraper";
+import { scraper } from "./scraper/index";
 import winston from "winston";
 import expressWinston from "express-winston";
 import { connect } from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.NODE_DOCKER_PORT || 8080;
+const PORT = parseInt(process.env.NODE_DOCKER_PORT) || 8080;
 
 app.use(
   expressWinston.logger({
@@ -38,6 +41,7 @@ app.get("/scrape", (req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", async () => {
+  console.log("Starting app...");
   const connectionString = `mongodb://mongodb:${process.env.MONGODB_DOCKER_PORT}/${process.env.MONGODB_DATABASE}`;
   await connect(connectionString, {
     user: process.env.MONGODB_USER,
@@ -47,4 +51,4 @@ app.listen(PORT, "0.0.0.0", async () => {
   console.log("App is now running at http://localhost:%d", PORT);
 });
 
-scraper();
+// scraper();
