@@ -5,6 +5,16 @@ export const evaluatePlayerInfos = () => {
     ".matchdetail-player-scores table tr:not(.Grid_Header)"
   );
 
+  // Get match info
+  const matchDataRow = document.querySelector(".match-data .row");
+  const matchInfoScore = document
+    .querySelector(".matchinfo-score")
+    .textContent.split("-");
+
+  const matchId = parseInt(
+    matchDataRow.querySelector("div:nth-child(1)").textContent.split(": ").pop()
+  );
+
   // Get player data
   const playerInfos: PlayerInfo[] = [];
   rows.forEach((row) => {
@@ -36,21 +46,11 @@ export const evaluatePlayerInfos = () => {
       ),
       points: parseInt(row.querySelector("td:nth-child(8)").textContent),
       gameRank: parseInt(row.querySelector("td:nth-child(9)").textContent),
+      matchId,
     });
   });
-
-  // Get match info
-  const matchDataRow = document.querySelector(".match-data .row");
-  const matchInfoScore = document
-    .querySelector(".matchinfo-score")
-    .textContent.split("-");
   const matchInfo: MatchInfo = {
-    matchId: parseInt(
-      matchDataRow
-        .querySelector("div:nth-child(1)")
-        .textContent.split(": ")
-        .pop()
-    ),
+    matchId,
     round: parseInt(
       matchDataRow
         .querySelector("div:nth-child(3)")

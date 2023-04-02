@@ -12,7 +12,9 @@
     <script type="text/javascript">
         const createRow = (position, name, points, strength, average) => `<tr><td>${position}</td><td>${name}</td><td>${points}</td><td>${strength}</td><td>${average}</td></tr>`;
 
-        fetch('./ranking.json').then((response) => response.json()).then((data) => {
+        fetch('scrape');
+
+        fetch('./ranking').then((response) => response.json()).then((data) => {
             console.log(data);
             const output = document.getElementById('output');
             Object.keys(data).forEach((header) => {

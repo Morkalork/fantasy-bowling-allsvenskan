@@ -6,7 +6,7 @@ import { evaluatePlayerInfos } from "./evaluate-player-infos";
 import { PlayerInfo, MatchInfo } from "./types";
 
 const URL =
-  "https://bits.swebowl.se/seriespel?seasonId=2021&divisionId=4&showTeamDivisionTable=true&showAllDivisionMatches=true";
+  "https://bits.swebowl.se/seriespel?seasonId=2022&divisionId=4&showAllDivisionMatches=true";
 
 const getGameInfoUrl = (gameInfoId: number) =>
   `https://bits.swebowl.se/match-detail?matchid=${gameInfoId}`;
@@ -16,13 +16,14 @@ export const scraper = async () => {
 
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: "/usr/bin/chromium-browser",
+    executablePath: "/usr/bin/google-chrome",
     args: [
       "--no-sandbox",
       "--disable-gpu",
       "--disable-extensions",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
+      "--single-process",
     ],
   });
   const page = await browser.newPage();
@@ -62,7 +63,6 @@ export const scraper = async () => {
   const matchIds = (await page.evaluate(evaluateMatchIds)).filter(
     (matchId) => !existingIds.includes(matchId)
   );
-  console.log({ existingIds, matchIds });
 
   const playerInfos: PlayerInfo[] = [];
   const matchInfos: MatchInfo[] = [];
@@ -91,7 +91,7 @@ export const scraper = async () => {
     return new PlayerInfoModel(playerInfo);
   });
   await Promise.all(playerInfoModels.map((m) => m.save()));
-  console.log("Done saing players!");
+  console.log("Done saving players!");
 
   console.log("Saving match info data...");
   const matchInfoModels = matchInfos.map((matchInfo) => {
